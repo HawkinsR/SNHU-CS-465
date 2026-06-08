@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
-// Mongoose .model() method just needs the name of the model, not sure why we had a file path. Old version?
-// const Trip = mongoose.model('../models/travlr');
-// const Model = mongoose.model('trips');
+const Trip = mongoose.model('trips');
 const Model = mongoose.model('trips');
 
 const tripsList = async (req, res) => {
@@ -38,7 +36,61 @@ const tripsByCode = async (req, res) => {
     }
 };
 
+const tripsAddTrip = async (req, res) => {
+    const newTrip = new Trip({
+        code: req.body.code,
+        name: req.body.name,
+        length: req.body.length,
+        start: req.body.start,
+        resort: req.body.resort,
+        perPerson: req.body.perPerson,
+        image: req.body.image,
+        description: req.body.description,
+    });
+
+    const q = await newTrip.save();
+
+    if (!q) {
+        return res
+            .status(404)
+            .json(err);
+    } else {
+        return res
+            .status(201)
+            .json(q);
+    }
+};
+
+const tripsUpdateTrip = async (req, res) => {
+    const q = await Model
+        .findOneAndUpdate(
+            { 'code': req.params.tripCode },
+            {
+                code: req.body.code,
+                name: req.body.name,
+                length: req.body.length,
+                start: req.body.start,
+                resort: req.body.resort,
+                perPerson: req.body.perPerson,
+                image: req.body.image,
+                description: req.body.description
+            }
+        )
+        .exec();
+    if (!q) {
+        return res
+            .status(400)
+            .json(err);
+    } else {
+        return res
+            .status(201)
+            .json(q);
+    }
+};
+
 module.exports = {
     tripsList,
-    tripsByCode
+    tripsByCode,
+    tripsAddTrip,
+    tripsUpdateTrip
 };
